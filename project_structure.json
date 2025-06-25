@@ -1,0 +1,16 @@
+{
+  "project_name": "CodeSpark",
+  "languages": ["C++", "C", "Java"],
+  "directories": {
+    "cpp": "src/cpp",
+    "c": "src/c",
+    "java": "src/java",
+    "build": "build",
+    "config": "config"
+  },
+  "dependencies": {
+    "C++": {"compiler": "g++", "version": "latest"},
+    "C": {"compiler": "gcc", "version": "latest"},
+    "Java": {"jdk": "openjdk", "version": "17"}
+  }
+}
