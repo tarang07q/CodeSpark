@@ -1,23 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, Card, CardContent, Typography, TextField, Button, Avatar } from '@mui/material';
 import { FaUserAstronaut } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      navigate('/editor');
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+    if (!email || !password) {
+      setError('Please fill in all fields.');
+      setLoading(false);
+      return;
+    }
     try {
-      // Replace with your backend URL
       const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
-      window.location.href = '/editor';
+      navigate('/editor');
     } catch (err) {
       setError('Invalid credentials');
     }
+    setLoading(false);
   };
 
   return (
@@ -31,7 +47,9 @@ function Login() {
           <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
             <TextField label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} fullWidth required sx={{ mb: 2 }} />
             <TextField label="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} fullWidth required sx={{ mb: 2 }} />
-            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ py: 1.5, fontWeight: 'bold', fontSize: 16, borderRadius: 2, background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)' }}>Login</Button>
+            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ py: 1.5, fontWeight: 'bold', fontSize: 16, borderRadius: 2, background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)' }} disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
+            </Button>
           </Box>
           {error && <Typography color="error" sx={{ mt: 2 }}>{error}</Typography>}
           <Typography sx={{ mt: 2 }}>Don't have an account? <a href="/register" style={{ color: '#764ba2', textDecoration: 'underline' }}>Register</a></Typography>

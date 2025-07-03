@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, Card, CardContent, Typography, TextField, Button, Avatar } from '@mui/material';
 import { FaUserPlus } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
   const [username, setUsername] = useState('');
@@ -9,9 +10,25 @@ function Register() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      navigate('/editor');
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
+    setLoading(true);
+    if (!username || !email || !password) {
+      setError('Please fill in all fields.');
+      setLoading(false);
+      return;
+    }
     try {
       await axios.post('http://localhost:5000/api/auth/register', { username, email, password });
       setSuccess('Registration successful! You can now login.');
@@ -20,6 +37,7 @@ function Register() {
       setError('Registration failed');
       setSuccess('');
     }
+    setLoading(false);
   };
 
   return (
@@ -34,7 +52,9 @@ function Register() {
             <TextField label="Username" value={username} onChange={e => setUsername(e.target.value)} fullWidth required sx={{ mb: 2 }} />
             <TextField label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} fullWidth required sx={{ mb: 2 }} />
             <TextField label="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} fullWidth required sx={{ mb: 2 }} />
-            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ py: 1.5, fontWeight: 'bold', fontSize: 16, borderRadius: 2, background: 'linear-gradient(90deg, #43cea2 0%, #185a9d 100%)' }}>Register</Button>
+            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ py: 1.5, fontWeight: 'bold', fontSize: 16, borderRadius: 2, background: 'linear-gradient(90deg, #43cea2 0%, #185a9d 100%)' }} disabled={loading}>
+              {loading ? 'Registering...' : 'Register'}
+            </Button>
           </Box>
           {error && <Typography color="error" sx={{ mt: 2 }}>{error}</Typography>}
           {success && <Typography color="success.main" sx={{ mt: 2 }}>{success}</Typography>}

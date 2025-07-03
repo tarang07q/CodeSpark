@@ -5,6 +5,11 @@ import Register from './pages/Register';
 import Editor from './pages/Editor';
 import Navbar from './components/Navbar';
 
+function PrivateRoute({ children }) {
+  const isAuth = !!localStorage.getItem('token');
+  return isAuth ? children : <Navigate to="/login" />;
+}
+
 function App() {
   return (
     <Router>
@@ -12,7 +17,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/editor" element={<Editor />} />
+        <Route path="/editor" element={<PrivateRoute><Editor /></PrivateRoute>} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
